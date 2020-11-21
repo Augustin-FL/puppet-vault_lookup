@@ -26,9 +26,9 @@ Puppet::Functions.create_function(:'vault_lookup::lookup') do
     use_ssl = uri.scheme == 'https'
     connection = Puppet::Network::HttpPool.http_instance(uri.host, uri.port, use_ssl)
 
-    token = get_auth_token(connection,vault_namespace)
+    token = get_auth_token(connection, vault_namespace)
 
-    headers = {'X-Vault-Token' => token, 'X-Vault-Namespace' => vault_namespace}.delete_if { |key,value| value.nil? }
+    headers = { 'X-Vault-Token' => token, 'X-Vault-Namespace' => vault_namespace }.delete_if { |_key, value| value.nil? }
     secret_response = connection.get("/v1/#{path}", headers)
     unless secret_response.is_a?(Net::HTTPOK)
       message = "Received #{secret_response.code} response code from vault at #{uri.host} for secret lookup"
@@ -47,7 +47,7 @@ Puppet::Functions.create_function(:'vault_lookup::lookup') do
   private
 
   def get_auth_token(connection, vault_namespace)
-    headers = {'X-Vault-Namespace' => vault_namespace}.delete_if { |key,value| value.nil? }
+    headers = { 'X-Vault-Namespace' => vault_namespace }.delete_if { |_key, value| value.nil? }
     response = connection.post('/v1/auth/cert/login', '', headers)
     unless response.is_a?(Net::HTTPOK)
       message = "Received #{response.code} response code from vault at #{connection.address} for authentication"
